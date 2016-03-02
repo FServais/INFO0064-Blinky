@@ -1,0 +1,12 @@
+/nbproject/private/
+/build/default/
+/dist/default/
+Makefile
+nbproject/configurations.xml
+nbproject/Makefile-default.mk
+nbproject/Makefile-genesis.properties
+nbproject/Makefile-impl.mk
+nbproject/Makefile-local-default.mk
+nbproject/Makefile-variables.mk
+nbproject/Package-default.bash
+nbproject/project.xml
