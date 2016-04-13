@@ -35,7 +35,7 @@ void interrupt MyIntVec(void) {
     // ADC conversion finished
     if (ADIF) {
         ADIF = 0;
-        result = (ADRESH << 2) && (ADRESL >> 6);
+        result = (ADRESH << 2) | (ADRESL >> 6);
         
         GO = 1;
         return;
