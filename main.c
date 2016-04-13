@@ -33,40 +33,58 @@ void interrupt MyIntVec(void) {
     }
 }
 
-void main(void){
+ static void initADCON() {
+    // Init ADCON0
+    ADCON0bits.ADON = 1; // Enable ADC module
+    ADCON0bits.GO_nDONE = 0; // Reset GO to 0
+    ADCON0bits.CHS = 0b00001; // Use RA1 as input channel
+    TRISAbits.TRISA1 = 1; // Set RA1 pin as input
+    ANSELAbits.ANSA1 = 1; // Set RA1 as analog input
+    // Init ADCON1
+    ADCON1bits.TRIGSEL = 0; // special trigger from CCP2
+    ADCON1bits.PVCFG = 0; // connect reference Vref+ to internal Vdd
+    ADCON1bits.NVCFG = 0; // connect reference Vref- to external Vdd
+    // Init ADCON2
+    ADCON2bits.ADFM = 0; // result format is left justified
+    ADCON2bits.ACQT = 0b100; // 8 TAD
+    ADCON2bits.ADCS = 0b101; // Fosc / 16
+ }
+
+static void initOscillator() {
+    OSCCONbits.IDLEN = 1; // Device enters in sleep mode
+    OSCCONbits.IRCF = 0b111; // Internal oscillator set to 16MHz
+    OSCCONbits.OSTS = 0; // Running from internal oscillator
+    OSCCONbits.HFIOFS = 0; // Frequency not stable
+    OSCCONbits.SCS = 0b00; // Primary clock defined by FOSC<3:0>
+}
+
+static void initPortB() {
     TRISB = 0; // PORTB = output
-    LATB = 1; // PORTB = 0V
-    TRISA3 = 1; // PORTA = input
-    ANSA3 = 0; // disable analog input on RA3 
-    OSCCON = 0x78; // 4MHz 
-    OpenTimer0(TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT & T0_PS_1_4);
+    LATB = 1; // Clear B outputs (set 0V)
+    // Turn off the LED outputs
+    LATBbits.LATB3 = 0;
+    LATBbits.LATB5 = 0;
+}
+
+
+void main(void){
+    initOscillator();
+    initADCON();
+    initPortB();
+    OpenTimer0(TIMER_INT_ON     // Timer enabled
+                & T0_16BIT      // Timer counter on 16 bits
+                & T0_SOURCE_INT // Internal clock as source
+                & T0_PS_1_4);   // Timer divider 1:4
+
     GIEH = 1; // Enable global Interrupt
-    PEIE = 1; 
-    
-    // Turn off the LED
-    LATB3 = 0;
-    LATB5 = 0;
-    
-    // Configure ADC pin (RA1)
-    ANSA1 = 1;
-    TRISA1 = 1;
-    
-    // Configure ADC
-    ADCON0 = ADCON0_INIT_CONFIG;
-    ADCON1 = ADCON1_INIT_CONFIG;
-    ADCON2 = ADCON2_INIT_CONFIG;
-    
-    // Configure ADC interrupt
-    PIR1bits.ADIF = 0; // A/D interrupt flag (clearing at init)
+    PEIE = 1; // Enable peripheral interrupts
     PIE1bits.ADIE = 1; // Enable interrupts for ADC
+    PIR1bits.ADIF = 0; // Reset A/D interrupt flag 
     
-    // Launch the conversion
-    // ADCON0bits.GO = 1;
-    
+    // Main loop
     int fetched_result = 0;
     while(1){
-         
-        PIE1bits.ADIE = 0;
+        PIE1bits.ADIE = 0; 
         fetched_result = result;
         PIE1bits.ADIE = 1;
         
