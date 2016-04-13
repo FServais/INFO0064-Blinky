@@ -8,10 +8,6 @@
 #include <xc.h>
 #include <timers.h>
 
-#define ADCON0_INIT_CONFIG 0b00000101 // Enable ADC, reset GO bit and select analog channel for RA1
-#define ADCON1_INIT_CONFIG 0b00000000 // Select Vdd and Vss as references
-#define ADCON2_INIT_CONFIG 0b00111100 // Acquisition time of 8TAD and select clock of Fosc/4
-
 #pragma config FOSC = INTOSCIO
 #pragma config MCLRE = ON
 #pragma config PBADEN = OFF
