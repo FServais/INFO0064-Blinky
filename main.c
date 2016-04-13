@@ -18,7 +18,8 @@
 #pragma config LVP = OFF
 #pragma config WDTEN = OFF, DEBUG = OFF
 
-static volatile int result;
+volatile int result = 0;
+volatile int cnt = 0;
 
 //interrupt vector
 void interrupt MyIntVec(void) {
@@ -33,10 +34,14 @@ void interrupt MyIntVec(void) {
 //    }
     
     // ADC conversion finished
-    if (ADIF) {
-        ADIF = 0;
+    if (ADIF) { 
+        ++cnt;
+        if (cnt == 2) {
+            LATB5 = 1;
+        }
+
+        ADIF = 0; // reset end of conversion flag
         result = (ADRESH << 2) | (ADRESL >> 6);
-        
         GO = 1;
         return;
     }
@@ -50,9 +55,11 @@ void main(void){
     OSCCON = 0x78; // 4MHz 
     OpenTimer0(TIMER_INT_ON & T0_16BIT & T0_SOURCE_INT & T0_PS_1_4);
     GIEH = 1; // Enable global Interrupt
+    PEIE = 1; 
     
     // Turn off the LED
     LATB3 = 0;
+    LATB5 = 0;
     
     // Configure ADC pin (RA1)
     ANSA1 = 1;
@@ -70,15 +77,11 @@ void main(void){
     // Launch the conversion
     GO = 1;
     
+    unsigned int cnt = 0;
     while(1){
-        // wait for interrupts
-        ADIE = 0;
-        int fetch_result = result;
-        ADIE = 1;
-        if(fetch_result > 0b1000000000){
+        if (result > 512) {
             LATB3 = 1;
-        }
-        else{
+        } else {
             LATB3 = 0;
         }
     }
