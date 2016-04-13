@@ -10,7 +10,7 @@
 
 #define ADCON0_INIT_CONFIG 0b00000101 // Enable ADC, reset GO bit and select analog channel for RA1
 #define ADCON1_INIT_CONFIG 0b00000000 // Select Vdd and Vss as references
-#define ADCON2_INIT_CONFIG 0b00001100 // Acquisition time of 2TAD and select clock of Fosc/4
+#define ADCON2_INIT_CONFIG 0b00111100 // Acquisition time of 8TAD and select clock of Fosc/4
 
 #pragma config FOSC = INTOSCIO
 #pragma config MCLRE = ON
@@ -19,31 +19,17 @@
 #pragma config WDTEN = OFF, DEBUG = OFF
 
 volatile int result = 0;
-volatile int cnt = 0;
 
 //interrupt vector
 void interrupt MyIntVec(void) {
-//    if (TMR0IE && TMR0IF) {
-//        TMR0IF = 0;
-//        if (PORTAbits.RA3) { // 
-//            LATB3 = !LATB3;
-//        } else {
-//            LATB3 = 1;
-//        }
-//        return;
-//    }
-    
+    if (TMR0IE == 1 && TMR0IF == 1) {
+        TMR0IF = 0;
+        ADCON0bits.GO = 1;
+    }
     // ADC conversion finished
-    if (ADIF) { 
-        ++cnt;
-        if (cnt == 2) {
-            LATB5 = 1;
-        }
-
-        ADIF = 0; // reset end of conversion flag
+    if (PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1 ) {
+        PIR1bits.ADIF = 0; // reset end of conversion flag
         result = (ADRESH << 2) | (ADRESL >> 6);
-        GO = 1;
-        return;
     }
 }
 
@@ -71,15 +57,20 @@ void main(void){
     ADCON2 = ADCON2_INIT_CONFIG;
     
     // Configure ADC interrupt
-    ADIF = 0; // A/D interrupt flag (clearing at init)
-    ADIE = 1; // Enable interrupts for ADC
+    PIR1bits.ADIF = 0; // A/D interrupt flag (clearing at init)
+    PIE1bits.ADIE = 1; // Enable interrupts for ADC
     
     // Launch the conversion
-    GO = 1;
+    // ADCON0bits.GO = 1;
     
-    unsigned int cnt = 0;
+    int fetched_result = 0;
     while(1){
-        if (result > 512) {
+         
+        PIE1bits.ADIE = 0;
+        fetched_result = result;
+        PIE1bits.ADIE = 1;
+        
+        if (fetched_result > 512) {
             LATB3 = 1;
         } else {
             LATB3 = 0;
