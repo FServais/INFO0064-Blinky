@@ -58,15 +58,23 @@ static void initPortB() {
     TRISB = 0; // PORTB = output
     LATB = 1; // Clear B outputs (set 0V)
     // Turn off the LED outputs
-    LATBbits.LATB3 = 0;
+    LATBbits.LATB4 = 0;
     LATBbits.LATB5 = 0;
 }
 
+static void outputPWM() {
+    TRISB = 1;
+    PR2 = 0b01100011;
+    CCP2CON = 0b00001111;
+    CCPR2L = 0b10000000;
+    TRISB = 0;
+}
 
 void main(void){
     initOscillator();
     initADCON();
     initPortB();
+    outputPWM();
     OpenTimer0(TIMER_INT_ON     // Timer enabled
                 & T0_16BIT      // Timer counter on 16 bits
                 & T0_SOURCE_INT // Internal clock as source
@@ -85,9 +93,9 @@ void main(void){
         PIE1bits.ADIE = 1;
         
         if (fetched_result > 512) {
-            LATB3 = 1;
+            LATB4 = 1;
         } else {
-            LATB3 = 0;
+            LATB4 = 0;
         }
     }
 }
