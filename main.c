@@ -63,11 +63,28 @@ static void initPortB() {
 }
 
 static void outputPWM() {
-    TRISB = 1;
-    PR2 = 0b01100011;
-    CCP2CON = 0b00001111;
-    CCPR2L = 0b10000000;
-    TRISB = 0;
+    TRISC1 = 0;  // set PORTC as output, RC1 is the pwm pin output
+    PORTC = 0;   // clear PORTC
+    //PR2 = 0b01100011;
+    
+    /* PWM registers configuration
+    * Fosc = 16000000 Hz
+    * Fpwm = 40000.00 Hz (Requested : 40000 Hz)
+    * Duty Cycle = 50 %
+    * Resolution is 8 bits
+    * Prescaler is 4
+    * Ensure that your PWM pin is configured as digital output
+    * see more details on http://www.micro-examples.com/
+    * this source code is provided 'as is',
+    * use it at your own risks
+    */
+    PR2 = 0b00011000 ;
+    CCP2CON = 0b00011100;
+    CCPR2L = 0b00001100;
+    T2CKPS1 = 0;    // Prescaler value - High bit
+    T2CKPS0 = 1;    // Prescaler value - Low bit
+    TMR2ON = 1;     // Activate timer 2
+  
 }
 
 void main(void){
