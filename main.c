@@ -17,6 +17,8 @@
 
 volatile int result = 0;
 
+unsigned char Txdata[] = "HELLO";
+
 //interrupt vector
 void interrupt MyIntVec(void) {
     if (TMR0IE == 1 && TMR0IF == 1) {
@@ -63,6 +65,11 @@ static void initPortB() {
     LATBbits.LATB5 = 0;
 }
 
+static void initPortC() {
+    TRISCbits.RC6 = 1;
+    TRISCbits.RC7 = 1;
+}
+
 static void outputPWM() {
     TRISC1 = 0;  // set PORTC as output, RC1 is the pwm pin output
     PORTC = 0;   // clear PORTC
@@ -88,34 +95,71 @@ static void outputPWM() {
   
 }
 
-void main(void){
-    initOscillator();
-    initADCON();
-    initPortB();
-    outputPWM();
-    OpenTimer0(TIMER_INT_ON     // Timer enabled
-                & T0_16BIT      // Timer counter on 16 bits
-                & T0_SOURCE_INT // Internal clock as source
-                & T0_PS_1_4);   // Timer divider 1:4
+static void enableGlobalInterrupts() {
+    GIEH = 1;
+}
 
-    GIEH = 1; // Enable global Interrupt
-    PEIE = 1; // Enable peripheral interrupts
-    PIE1bits.ADIE = 1; // Enable interrupts for ADC
-    PIR1bits.ADIF = 0; // Reset A/D interrupt flag 
+static void enablePeripheralInterrupts() {
+    PEIE = 1;
+}
+
+void main(void){
+//    initOscillator();
+//    initADCON();
+//    initPortB();
+//    outputPWM();
+//    OpenTimer0(TIMER_INT_ON     // Timer enabled
+//                & T0_16BIT      // Timer counter on 16 bits
+//                & T0_SOURCE_INT // Internal clock as source
+//                & T0_PS_1_4);   // Timer divider 1:4
+//
+//    GIEH = 1; // Enable global Interrupt
+//    PEIE = 1; // Enable peripheral interrupts
+//    PIE1bits.ADIE = 1; // Enable interrupts for ADC
+//    PIR1bits.ADIF = 0; // Reset A/D interrupt flag 
+//    
+//    // Main loop
+//    int fetched_result = 0;
+//    while(1){
+//        PIE1bits.ADIE = 0; 
+//        fetched_result = result;
+//        PIE1bits.ADIE = 1;
+//        
+//        if (fetched_result > 512) {
+//            LATB4 = 1;
+//        } else {
+//            LATB4 = 0;
+//        }
+//    }
+    initOscillator();
+    initPortC();
     
-    // Main loop
-    int fetched_result = 0;
-    while(1){
-        PIE1bits.ADIE = 0; 
-        fetched_result = result;
-        PIE1bits.ADIE = 1;
-        
-        if (fetched_result > 512) {
-            LATB4 = 1;
-        } else {
-            LATB4 = 0;
-        }
-    }
+    enableGlobalInterrupts();
+    enablePeripheralInterrupts();
+    
+    Close1USART();
+    
+    unsigned char configUSART = USART_TX_INT_OFF; // Deactivate interrupt transmitter
+    configUSART |= USART_RX_INT_OFF; // Deactivate interrupt receiver
+    configUSART |= USART_ASYNCH_MODE; // Asynchronous mode
+    configUSART |= USART_EIGHT_BIT; //8-bit mode
+    configUSART |= USART_CONT_RX;
+    configUSART |= USART_BRGH_LOW;
+    
+    // This is the value that is written to the baud rate generator register which determines the baud rate at which the usart operates
+    // For a baud rate of 9615 with Fosc = 16MHz -> spbrg = 25 (decimal)
+    // See PIC datasheet, page 283
+    unsigned char spbrg = 25;
+    Open1USART(configUSART, spbrg);
+    
+    unsigned char baudConfig = BAUD_8_BIT_RATE | BAUD_AUTO_OFF;
+    baud1USART(baudConfig);
+    
+    while(Busy1USART());
+    puts1USART(Txdata);
+    
+    Close1USART();
+    while(1);
 }
 
 
