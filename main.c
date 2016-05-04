@@ -17,7 +17,7 @@
 
 volatile int result = 0;
 
-unsigned char Txdata[] = "HELLO";
+unsigned char Txdata[] = "HELLO ELO";
 
 //interrupt vector
 void interrupt MyIntVec(void) {
@@ -61,13 +61,14 @@ static void initPortB() {
     TRISB = 0; // PORTB = output
     LATB = 1; // Clear B outputs (set 0V)
     // Turn off the LED outputs
+    LATBbits.LATB3 = 0;
     LATBbits.LATB4 = 0;
     LATBbits.LATB5 = 0;
 }
 
-static void initPortC() {
+static void initUARTPorts() {
     TRISCbits.RC6 = 1;
-    TRISCbits.RC7 = 1;
+    TRISCbits.RC7 = 0;
 }
 
 static void outputPWM() {
@@ -103,6 +104,7 @@ static void enablePeripheralInterrupts() {
     PEIE = 1;
 }
 
+
 void main(void){
 //    initOscillator();
 //    initADCON();
@@ -130,36 +132,60 @@ void main(void){
 //        } else {
 //            LATB4 = 0;
 //        }
-//    }
+//    } 
     initOscillator();
-    initPortC();
+    initPortB();
+//    initUARTPorts();
     
-    enableGlobalInterrupts();
-    enablePeripheralInterrupts();
-    
-    Close1USART();
-    
-    unsigned char configUSART = USART_TX_INT_OFF; // Deactivate interrupt transmitter
-    configUSART |= USART_RX_INT_OFF; // Deactivate interrupt receiver
-    configUSART |= USART_ASYNCH_MODE; // Asynchronous mode
-    configUSART |= USART_EIGHT_BIT; //8-bit mode
-    configUSART |= USART_CONT_RX;
-    configUSART |= USART_BRGH_LOW;
+//    enableGlobalInterrupts();
+//    enablePeripheralInterrupts();
+//    
+//    unsigned char configUSART = USART_TX_INT_OFF; // Deactivate interrupt transmitter
+//    configUSART |= USART_RX_INT_OFF; // Deactivate interrupt receiver
+//    configUSART |= USART_ASYNCH_MODE; // Asynchronous mode
+//    configUSART |= USART_EIGHT_BIT; //8-bit mode
+//    configUSART |= USART_CONT_RX;
+//    configUSART |= USART_BRGH_HIGH;
     
     // This is the value that is written to the baud rate generator register which determines the baud rate at which the usart operates
     // For a baud rate of 9615 with Fosc = 16MHz -> spbrg = 25 (decimal)
     // See PIC datasheet, page 283
-    unsigned char spbrg = 25;
-    Open1USART(configUSART, spbrg);
+//    unsigned char spbrg = 25;
+//    Open1USART(configUSART, spbrg);
     
-    unsigned char baudConfig = BAUD_8_BIT_RATE | BAUD_AUTO_OFF;
-    baud1USART(baudConfig);
+    SPBRG1 = 25;
+    SPBRGH1 = 0;
+    BRGH = 0;
+    BRG16 = 0;
     
-    while(Busy1USART());
-    puts1USART(Txdata);
+    TRISCbits.RC6 = 1;
+    TRISCbits.RC7 = 1;
     
-    Close1USART();
+    SYNC = 0;
+    SPEN = 1;
+    
+    TXCKP = 1;
+    
+    TXEN = 1;
+    
+    for(int i = 0; i < 10000; ++i) {}
+    
+    LATB3 = 1;
+    //TXREG1 = 'b';
+    while(1) {
+        putc1USART(0x44);
+        for(int i = 0; i < 1000; ++i) {}
+    } 
+    
+//    unsigned char baudConfig = BAUD_8_BIT_RATE | BAUD_AUTO_OFF;
+//    baud1USART(baudConfig);
+//    
+//    while(Busy1USART());
+//    puts1USART(Txdata);
+//    
+//    Close1USART();
     while(1);
 }
+
 
 
