@@ -7,6 +7,7 @@
 #include "p18f24k50.h"
 #include <xc.h>
 #include <timers.h>
+#include <plib/usart.h>
 
 #pragma config FOSC = INTOSCIO
 #pragma config MCLRE = ON
