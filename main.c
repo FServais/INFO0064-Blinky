@@ -116,11 +116,6 @@ void main(void){
     GIEH = 1;
     PEIE = 1;
     
-    /*Open1USART(USART_TX_INT_OFF
-                | USART_RX_INT_OFF 
-                | USART_ASYNCH_MODE 
-                | USART_EIGHT_BIT, 25);
-    baud1USART(BAUD_8_BIT_RATE | BAUD_AUTO_OFF);*/
     BRGH = 0;
     SPBRG = 25;                           //Writing SPBRG Register
     SYNC = 0;                             //Setting Asynchronous Mode, ie UART
