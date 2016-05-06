@@ -5,6 +5,7 @@
  */
 
 #include "p18f24k50.h"
+#include "protocol.h"
 #include <xc.h>
 #include <timers.h>
 #include <plib/usart.h>
@@ -17,10 +18,7 @@
 
 volatile int result = 0;
 
-unsigned char Txdata[] = "HELLO ELO";
-
-
- static void initADCON() {
+static void initADCON() {
     // Init ADCON0
     ADCON0bits.ADON = 1; // Enable ADC module
     ADCON0bits.GO_nDONE = 0; // Reset GO to 0
@@ -35,7 +33,7 @@ unsigned char Txdata[] = "HELLO ELO";
     ADCON2bits.ADFM = 0; // result format is left justified
     ADCON2bits.ACQT = 0b100; // 8 TAD
     ADCON2bits.ADCS = 0b101; // Fosc / 16
- }
+}
 
 static void initOscillator() {
     OSCCONbits.IDLEN = 1; // Device enters in sleep mode
@@ -52,11 +50,6 @@ static void initPortB() {
     LATBbits.LATB3 = 0;
     LATBbits.LATB4 = 0;
     LATBbits.LATB5 = 0;
-}
-
-static void initUARTPorts() {
-    TRISCbits.RC6 = 1;
-    TRISCbits.RC7 = 0;
 }
 
 static void outputPWM() {
@@ -108,29 +101,17 @@ void interrupt MyIntVec(void) {
 void main(void){
     initOscillator();
     initPortB();
-    
-    TRISCbits.RC6 = 1;
-    TRISCbits.RC7 = 1;
-    
+    initUART();
+  
     // enable interrupts
     GIEH = 1;
     PEIE = 1;
     
-    BRGH = 0;
-    SPBRG = 25;                           //Writing SPBRG Register
-    SYNC = 0;                             //Setting Asynchronous Mode, ie UART
-    SPEN = 1;                             //Enables Serial Port
-    TRISC7 = 1;                           //As Prescribed in Datasheet
-    TRISC6 = 1;                           //As Prescribed in Datasheet
-    CREN = 1;                             //Enables Continuous Reception
-    TXEN = 1;                             //Enables Transmission
-    
     LATB3 = 0; 
-    /*putc1USART('a');
-    LATB3 = 0;*/
+
     int i = 0;
     while(1) {
-        puts1USART("Testtest\n");
+        send_debug("Testtest\n");
         if (i % 10000 == 0) {
             LATB3 = !LATB3;
         }
