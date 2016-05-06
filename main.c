@@ -19,18 +19,6 @@ volatile int result = 0;
 
 unsigned char Txdata[] = "HELLO ELO";
 
-//interrupt vector
-void interrupt MyIntVec(void) {
-    if (TMR0IE == 1 && TMR0IF == 1) {
-        TMR0IF = 0;
-        ADCON0bits.GO = 1;
-    }
-    // ADC conversion finished
-    if (PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1 ) {
-        PIR1bits.ADIF = 0; // reset end of conversion flag
-        result = (ADRESH << 2) | (ADRESL >> 6);
-    }
-}
 
  static void initADCON() {
     // Init ADCON0
@@ -104,25 +92,50 @@ static void enablePeripheralInterrupts() {
     PEIE = 1;
 }
 
+//interrupt vector
+void interrupt MyIntVec(void) {
+    if (TMR0IE == 1 && TMR0IF == 1) {
+        TMR0IF = 0;
+        ADCON0bits.GO = 1;
+    }
+    // ADC conversion finished
+    if (PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1 ) {
+        PIR1bits.ADIF = 0; // reset end of conversion flag
+        result = (ADRESH << 2) | (ADRESL >> 6);
+    }
+}
 
 void main(void){
     initOscillator();
     initPortB();
     
-    Open1USART(USART_TX_INT_OFF 
+    TRISCbits.RC6 = 1;
+    TRISCbits.RC7 = 1;
+    
+    // enable interrupts
+    GIEH = 1;
+    PEIE = 1;
+    
+    /*Open1USART(USART_TX_INT_OFF
                 | USART_RX_INT_OFF 
                 | USART_ASYNCH_MODE 
-                | USART_EIGHT_BIT 
-                | USART_CONT_RX
-                | USART_BRGH_LOW, 25);
-    baud1USART(BAUD_8_BIT_RATE | BAUD_AUTO_OFF);
+                | USART_EIGHT_BIT, 25);
+    baud1USART(BAUD_8_BIT_RATE | BAUD_AUTO_OFF);*/
+    BRGH = 0;
+    SPBRG = 25;                           //Writing SPBRG Register
+    SYNC = 0;                             //Setting Asynchronous Mode, ie UART
+    SPEN = 1;                             //Enables Serial Port
+    TRISC7 = 1;                           //As Prescribed in Datasheet
+    TRISC6 = 1;                           //As Prescribed in Datasheet
+    CREN = 1;                             //Enables Continuous Reception
+    TXEN = 1;                             //Enables Transmission
     
-    /*LATB3 = 0; 
-    putc1USART('a');
+    LATB3 = 0; 
+    /*putc1USART('a');
     LATB3 = 0;*/
     int i = 0;
     while(1) {
-        putc1USART(0b11010100);
+        puts1USART("Testtest\n");
         if (i % 10000 == 0) {
             LATB3 = !LATB3;
         }
