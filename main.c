@@ -111,9 +111,10 @@ void main(void){
 
     int i = 0;
     while(1) {
-        send_debug("Testtest\n");
-        if (i % 10000 == 0) {
+        if (i % 50000 == 0) {
             LATB3 = !LATB3;
+            send_debug("Switch");
+            send_coord(25, 25);
         }
         i++;
     }
