@@ -23,10 +23,12 @@ class ProtocolReader(object):
 
     def __enter__(self):
         self._conn = serial.Serial(self._channel, self._baudrate)
+        return self
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self._conn is not None:
             self._conn.close()
+        return self
 
     def next(self):
         """Execute and print the next received action
