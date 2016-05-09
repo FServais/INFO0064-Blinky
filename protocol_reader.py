@@ -63,14 +63,10 @@ class ProtocolReader(object):
         """
         if action == ProtocolReader.ACTION_COORD:
             x, y = self.get_coord()
-            print "Coordinates :"
-            print "X: {}".format(x)
-            print "Y: {}".format(y)
-            print
+            print "Coordinates (X:{}, Y:{})".format(x, y)
         elif action == ProtocolReader.ACTION_DEBUG:
             debug = self.get_debug()
             print "\n".join(["DEBUG: {}".format(line) for line in debug.split("\n")])
-            print
         else:
             print "UNKNOWN ACTION !!!"
 
