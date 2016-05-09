@@ -11,35 +11,40 @@
  */
 static inline bool is_reserved(char c);
 
+static inline void putc_when_ready(char c);
+
 static inline bool is_reserved(char c) {
 	return c == START_DEBUG || c == START_COORD || c == END_DEBUG;
 } 
 
+static inline void putc_when_ready(char c) {
+    while(Busy1USART());
+    putc1USART(c);
+}
+
 void send_coord(unsigned int x_cm, unsigned int y_cm) {
-	putc1USART(START_COORD);
-	putc1USART((x_cm >> 8) & 0xFF);
-	putc1USART((x_cm) & 0xFF);
-	putc1USART((y_cm >> 8) & 0xFF);
-	putc1USART((y_cm) & 0XFF); 
+	putc_when_ready(START_COORD);
+	putc_when_ready((x_cm >> 8) & 0xFF);
+	putc_when_ready((x_cm) & 0xFF);
+	putc_when_ready((y_cm >> 8) & 0xFF);
+	putc_when_ready((y_cm) & 0XFF); 
 }
 
 void send_debug_nchar(char* buffer, unsigned int buffer_len) {
-	putc1USART(START_DEBUG);
+	putc_when_ready(START_DEBUG);
 	for (unsigned int i = 0; i < buffer_len; ++i) {
 		if (is_reserved(buffer[i])) { // prevent protocol to enter in invalid mode
 			break;  
 		}
-		putc1USART(buffer[i]);
+		putc_when_ready(buffer[i]);
 	}
-	putc1USART(END_DEBUG);
+	putc_when_ready(END_DEBUG);
 }
 
 void send_debug(char* buffer) {
-	putc1USART(START_DEBUG);
-    for (unsigned int i = 0; !is_reserved(buffer[i]) && buffer[i] != '\0'; ++i) {
-		putc1USART(buffer[i]);
-	}
-	putc1USART(END_DEBUG);
+	putc_when_ready(START_DEBUG);
+    puts1USART(buffer);
+	putc_when_ready(END_DEBUG);
 }
 
 void initUART() {
