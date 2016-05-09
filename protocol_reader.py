@@ -46,11 +46,12 @@ class ProtocolReader(object):
         self._validate_conn()
         byte = self._conn.read()
 
-        if byte == ProtocolReader.START_DEBUG:
+        if ord(byte) == ProtocolReader.START_DEBUG:
             return ProtocolReader.ACTION_DEBUG
-        elif byte == ProtocolReader.START_COORD:
+        elif ord(byte) == ProtocolReader.START_COORD:
             return ProtocolReader.ACTION_COORD
         else:
+            print "Unknown byte : {}".format(ord(byte))
             return ProtocolReader.ACTION_UNKNO
 
     def print_action(self, action):
@@ -84,10 +85,10 @@ class ProtocolReader(object):
             The y coordinate
         """
         self._validate_conn()
-        xh = self._conn.read()
-        xl = self._conn.read()
-        yh = self._conn.read()
-        yl = self._conn.read()
+        xh = ord(self._conn.read())
+        xl = ord(self._conn.read())
+        yh = ord(self._conn.read())
+        yl = ord(self._conn.read())
         return (xh << 8) | xl, (yh << 8) | yl
 
     def get_debug(self):
@@ -101,8 +102,11 @@ class ProtocolReader(object):
         self._validate_conn()
         buffer = []
         curr = self._conn.read()
-        while curr != ProtocolReader.END_DEBUG:
-            buffer.append(curr)
+        while ord(curr) != ProtocolReader.END_DEBUG:
+            if ord(curr) == ProtocolReader.START_DEBUG:
+                buffer = []
+            else: 
+                buffer.append(curr)
             curr = self._conn.read()
         return "".join(buffer)
 
