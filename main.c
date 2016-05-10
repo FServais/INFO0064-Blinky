@@ -18,23 +18,6 @@
 
 volatile int result = 0;
 
-static void initADCON() {
-    // Init ADCON0
-    ADCON0bits.ADON = 1; // Enable ADC module
-    ADCON0bits.GO_nDONE = 0; // Reset GO to 0
-    ADCON0bits.CHS = 0b00001; // Use RA1 as input channel
-    TRISAbits.TRISA1 = 1; // Set RA1 pin as input
-    ANSELAbits.ANSA1 = 1; // Set RA1 as analog input
-    // Init ADCON1
-    ADCON1bits.TRIGSEL = 0; // special trigger from CCP2
-    ADCON1bits.PVCFG = 0; // connect reference Vref+ to internal Vdd
-    ADCON1bits.NVCFG = 0; // connect reference Vref- to external Vdd
-    // Init ADCON2
-    ADCON2bits.ADFM = 0; // result format is left justified
-    ADCON2bits.ACQT = 0b100; // 8 TAD
-    ADCON2bits.ADCS = 0b101; // Fosc / 16
-}
-
 static void initOscillator() {
     OSCCONbits.IDLEN = 1; // Device enters in sleep mode
     OSCCONbits.IRCF = 0b111; // Internal oscillator set to 16MHz
