@@ -1,5 +1,5 @@
-#ifndef "TRACK_H"
-#define "TRACK_H"
+#ifndef TRACK_H
+#define TRACK_H
 
 /**
  *
@@ -8,7 +8,7 @@
  * _______|_______________|____>__________|_________
  *        |               |    x          |
  *        |<------------->|<------------->|
- *        |       c       |       c       |
+ *        |       e       |       e       |
  *        C2              T               C1
  *
  */
@@ -37,7 +37,7 @@ struct Point {
  *
  * @return: 0 if no error occurs
  */
-int track(int T1, int T2, Point* p);
+int track (int T1, int T2, Point* p);
 
 #endif
 
