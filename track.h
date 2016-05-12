@@ -15,8 +15,8 @@
 
 typedef struct Point Point;
 struct Point {
-  int x;
-  int y;
+  double x;
+  double y;
 };
 
 /**
@@ -37,7 +37,7 @@ struct Point {
  *
  * @return: 0 if no error occurs
  */
-int track (int T1, int T2, Point* p);
+int track (long double T1, long double T2, Point* p);
 
 #endif
 

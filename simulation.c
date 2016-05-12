@@ -12,20 +12,20 @@ int simulate (Point_s *p, long double *T1, long double *T2)
   const double c1 =  0.05; // [m] distance from sensor 1 to sender
   const double c2 = -0.05; // [m] distance from sensor 2 to sender
 
-  const double v = 343.0; //[m/s] approximate velocity of the ultrason in air
-  const double epsilon = 0; // the time it takes to the tracking device to send back
+  const double v = 3.0; //[m/s] approximate velocity of the ultrason in air
+  const double epsilon = 0.0; // the time it takes to the tracking device to send back
 
   Point_s o;
   o.x = 0.0;
   o.y = 0.0;
   o.z = 0.0;
 
-  double dt1 = 0.0;
-  double dt2 = 0.0;
+  long double dt1 = 0.0;
+  long double dt2 = 0.0;
 
   // for C1:
   /* time ellapse to go from senders to the point */
-  double dt = distance(&o, p) / v;
+  long double dt = distance(&o, p) / v;
   dt1 += dt;
   dt2 += dt;
 

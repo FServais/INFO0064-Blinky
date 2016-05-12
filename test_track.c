@@ -14,8 +14,8 @@ int main()
    long double T2 = -1.0; // in second
 
    Point_s p_test;
-   p_test.x = 3.5;
-   p_test.y = 4.0;
+   p_test.x = 2.5;
+   p_test.y = 1.0;
    p_test.z = 0.0;
 
    fprintf(stdout, "T.D. is at position:\n");
@@ -29,12 +29,13 @@ int main()
 
    Point p;
 
-   p.x = 0;
-   p.y = 0;
+   p.x = -1;
+   p.y = -1;
 
-   track(T1, T2, &p);
+   fprintf(stderr, "track return %d\n", track(T1, T2, &p));
 
-   fprintf(stdout, "The point computed by the function is:");
+   fprintf(stdout, "\nThe point computed by the function is:");
+
    printPoint(&p);
 
    return EXIT_SUCCESS;
@@ -46,8 +47,8 @@ void printPoint(Point* p)
       return;
 
    fprintf(stdout, "\n");
-   fprintf(stdout, "P.x = %d\n", p->x);
-   fprintf(stdout, "P.y = %d\n", p->y);
+   fprintf(stdout, "P.x = %lf\n", p->x);
+   fprintf(stdout, "P.y = %lf\n", p->y);
 }
 
 void printTimes(long double T1, long double T2)
@@ -56,7 +57,7 @@ void printTimes(long double T1, long double T2)
       return;
 
    fprintf(stdout, "\n");
-   fprintf(stdout, "T1 = %Le micros\n", T1 * pow(10,6));
-   fprintf(stdout, "T2 = %Le micros\n", T2 * pow(10,6));
+   fprintf(stdout, "T1 = %Le s\n", T1);
+   fprintf(stdout, "T2 = %Le s\n", T2);
 }
 

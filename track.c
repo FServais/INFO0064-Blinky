@@ -8,14 +8,14 @@
  * @param: x
  * @return: x^2
  */
-float pow2 (float x);
+double pow2 (double x);
 
 /**
  * root2()
  * @param: x
  * @return: sqrt(x)
  */
-float root2 (float x);
+double root2 (double x);
 
 /**
  * track()
@@ -28,38 +28,46 @@ float root2 (float x);
  * - check division, float type, etc.
  * - make tests
  */
-int track (int T1, int T2, Point* p)
+int track (long double T1, long double T2, Point* p)
 {
-  if ((p == NULL) || (T1 <= 0) || (T2 <= 0))
+  if (p == NULL)
      return -1;
 
-  const int velocity = 343;/* m/s */
+  if (T1 <= 0)
+     return -2;
+
+  if (T2 <= 0)
+     return -3;
+
+  const long double velocity = 343;/* [m/s] */
 
   T1 = T1 * velocity;
   T2 = T2 * velocity;
 
-  const float e = 0; /* TODO: measure the real value in cm */
+  const long double e = 0.05;//[m] /* TODO: measure the real value in cm */
 
-  const float m = pow2(e) - pow2(T1);
-  const float n = pow2(e) - pow2(T2);
-  const float a = (n / pow2(T2)) - (m / pow2(T1));
-  const float b = - e * ((n / pow2(T2)) + (m / pow2(T1)));
-  const float c = (pow2(n) / (4 * pow2(T2))) - (pow2(m) / (4 * pow2(T1)));
-
-  float delta = pow2(b) - 4 * a * c;
+  const long double m = pow2(e) - pow2(T1);
+  const long double n = pow2(e) - pow2(T2);
+  const long double a = (n / pow2(T2)) - (m / pow2(T1));
+  const long double b = - e * ((n / pow2(T2)) + (m / pow2(T1)));
+  const long double c = (pow2(n) / (4 * pow2(T2))) - (pow2(m) / (4 * pow2(T1)));
+  const long double delta = pow2(b) - 4 * a * c;
 
   p->x = -b + root2(delta) / (2 * a);
   p->y = root2((m * pow2(p->x) + m * e * p->x + pow2(m) / 4) / pow2(T1));
-
+/*
+  p->x = 2;
+  p->y = 3;
+*/
   return 0;
 }
 
-float root2 (float x)
+double root2 (double x)
 {
    return sqrt(x);
 }
 
-float pow2 (float x)
+double pow2 (double x)
 {
    return pow(x, 2);
 }
