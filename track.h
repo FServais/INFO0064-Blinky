@@ -15,8 +15,9 @@
 
 typedef struct Point Point;
 struct Point {
-  double x;
-  double y;
+  long double x;
+  long double y;
+  long double z;
 };
 
 /**
@@ -36,6 +37,7 @@ struct Point {
  *              device.
  *
  * @return: 0 if no error occurs
+ *          an error code in case of failure.
  */
 int track (long double T1, long double T2, Point* p);
 

@@ -3,57 +3,48 @@
 #include <math.h>
 
 #include "simulation.h"
+
 #include "track.h"
 
-double distance(Point_s *a, Point_s *b);
-
-int simulate (Point_s *p, long double *T1, long double *T2)
+int simulate (Point *p, long double *T1, long double *T2, long double eps)
 {
-  const double c1 =  0.05; // [m] distance from sensor 1 to sender
-  const double c2 = -0.05; // [m] distance from sensor 2 to sender
 
-  const double v = 3.0; //[m/s] approximate velocity of the ultrason in air
-  const double epsilon = 0.0; // the time it takes to the tracking device to send back
+  const long double e = 1; /* distance between the captor and the origin in [m] */
+  const long double v = 3; /* Velocity of the signal in [m/s] */
 
-  Point_s o;
-  o.x = 0.0;
-  o.y = 0.0;
-  o.z = 0.0;
+  *T1 = 0.00;
+  *T2 = 0.00;
 
-  long double dt1 = 0.0;
-  long double dt2 = 0.0;
+  Point tmp;
 
-  // for C1:
-  /* time ellapse to go from senders to the point */
-  long double dt = distance(&o, p) / v;
-  dt1 += dt;
-  dt2 += dt;
+  tmp.x = 0.00;
+  tmp.y = 0.00;
+  tmp.z = 0.00;
 
-  /* Time taken by the T.D. to respond */
-  dt1 += epsilon;
-  dt2 += epsilon;
+  long double t0 = distance(&tmp, p) / v;
 
-  /* time ellapse to go from the T.D. to the sensors */
-  Point_s C1, C2;
-  C1.x = c1;
-  C1.y = 0;
-  C1.z = 0;
+  *T1 += t0;
+  *T2 += t0;
 
-  C2.x = c2;
-  C2.y = 0;
-  C2.z = 0;
+  tmp.x = e;
 
-  dt1 += distance(p, &C1) / v;
-  dt2 += distance(p, &C2) / v;
+  long double t1 = distance(&tmp, p) / v;
 
-  // end of simulation  
-  *T1 = dt1;
-  *T2 = dt2;
+  *T1 += t1;
+
+  tmp.x = -e;
+
+  long double t2 = distance(&tmp, p) / v;
+
+  *T2 += t2;
+
+  *T1 += eps;
+  *T2 += eps;
 
   return 0;
 }
 
-double distance(Point_s *a, Point_s *b)
+long double distance(Point *a, Point *b)
 {
    if (a == NULL || b == NULL)
       return -1;
@@ -61,15 +52,15 @@ double distance(Point_s *a, Point_s *b)
    return sqrt(pow(b->x - a->x,2) + pow(b->y - a->y, 2) + pow(b->z - a->z, 2));
 }
 
-void printPoint_s(Point_s *p)
+void printPoint_s(Point *p)
 {
    if (p == NULL)
       return;
 
    fprintf(stdout, "\n");
-   fprintf(stdout, "P.x = %lf\n", p->x);
-   fprintf(stdout, "P.y = %lf\n", p->y);
-   fprintf(stdout, "P.z = %lf\n", p->z);
+   fprintf(stdout, "P.x = %Le\n", p->x);
+   fprintf(stdout, "P.y = %Le\n", p->y);
+   fprintf(stdout, "P.z = %Le\n", p->z);
 }
 
 
