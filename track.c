@@ -12,7 +12,7 @@
  * use another optimize formula, we would just have to change the implementation
  * of this function.
  */
-long double pow2 (double x);
+long double pow2 (const double x);
 
 /**
  * root2()
@@ -37,103 +37,70 @@ long double root2 (double x);
  */
 int track (long double T1, long double T2, Point* p)
 {
+  const double e = 7.0; /* distance between the captor and the origin in [cm] */
+  const double v = 0.0340; /* Velocity of the signal in [cm/(10^-6)s] */
 
-  fprintf(stdout, "\n***** start tracking algorithm *****\n");
-
-  if (p == NULL)
+  /* Check input */
+  if (p == NULL || T1 <= 0 || T2 <= 0)
   {
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-
+     p->x = 0.0;
+     p->y = 0.0;
+     p->z = 0.0;
      return -1;
   }
-
-  if (T1 <= 0)
-  {
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-
-     return -2;
-  }
-
-  if (T2 <= 0)
-  {
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-
-     return -3;
-  }
-
-  const long double e = 1; /* distance between the captor and the origin in [m] */
-  const long double v = 3; /* Velocity of the signal in [m/s] */
 
   long double d1 = T1 * v;
   long double d2 = T2 * v;
 
   if (d1 == d2)
   {
-     p->x = 0;
+     p->x = 0.0;
      p->y = (pow2(d1) - pow2(e)) / (2 * d1);
-     p->z = 0;
      return 0;
-  }
-
-  if (pow2(d2) == 0 || pow2(d1) == 0)
-  {
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-     return -4;
   }
 
   long double m = pow2(e) - pow2(d1);
   long double n = pow2(e) - pow2(d2);
+
   long double a = (n / pow2(d2)) - (m / pow2(d1));
-  long double b = (-1) * e * ((n / pow2(d2)) + (m / pow2(d1)));
-  long double c = (pow2(n) / (4 * pow2(d2))) - (pow2(m) / (4 * pow2(d1)));
+  long double b = (-1.0) * e * ((n / pow2(d2)) + (m / pow2(d1)));
+  long double c = (pow2(n) / (4.0 * pow2(d2))) - (pow2(m) / (4.0 * pow2(d1)));
 
-  long double delta = pow2(b) - 4 * a * c;
+  long double delta = pow2(b) - 4.0 * a * c;
 
-  if (delta <= 0)
+  if (delta < 0)
   {
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-     return -5;
+     p->x = 0.0;
+     p->y = 0.0;
+     p->z = 0.0;
+     return -2;
   }
 
-  p->x = -b + root2(delta) / (2 * a);
+  p->x = (-b + root2(delta)) / (2.0 * a);
 
-  if ((((m * pow2(p->x) + m * e * p->x + (pow2(m)) / 4)) / pow2(d1)) < 0)
+  long double tmp = (((m * pow2(p->x) + m * e * p->x + (pow2(m)) / 4.0)) / pow2(d1));
+
+  if (tmp < 0)
   {
-
-     fprintf(stdout, "(d_1)^2 = %Le\n", pow2(d1));
-
-     p->x = 0;
-     p->y = 0;
-     p->z = 0;
-     return -6;
+     p->x = 0.0;
+     p->y = 0.0;
+     p->z = 0.0;
+     return -3;
   }
 
-  p->y = root2((m * pow2(p->x) + m * e * p->x + pow2(m) / 4) / pow2(d1));
-  p->z = 0;
+  p->y = root2(tmp);
 
   return 0;
-
-  fprintf(stdout, "\n***** end tracking algorithm *****\n");
-
 }
 
 long double root2 (double x)
 {
+
    return sqrt(x);
 }
 
-long double pow2 (double x)
+long double pow2 (const double x)
 {
-   return pow(x, 2);
+   return x * x;
 }
 

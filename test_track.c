@@ -2,67 +2,119 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "track.h"
 #include "simulation.h"
+#include "track.h"
 
-void printPoint(Point* p);
-void printTimes(long double T1, long double T2);
+void displayResults(int error, Point *p, Point *TD, long double T1, long double T2);
+
+void printPoint (FILE* output, Point *p);
+void printTimes (FILE* output, long double T1, long double T2);
+
+double computeError(Point *p, Point *TD);
 
 int main()
 {
    long double T1; // in second
    long double T2; // in second
 
-   const long double e = 1; /* distance between the captor and the origin in [m] */
-   const long double v = 3; /* Velocity of the signal in [m/s] */
+   const long double e = 7.0;    /* distance between the captor and the origin in [cm] */
+   const long double v = 0.0340; /* Velocity of son = 340 [m/2] */
+                                 /* Velocity of the signal in [cm/(10^(-6)s)] */
 
-   fprintf(stdout, "\ne = %Le\n", e);
-   fprintf(stdout, "v = %Le\n", v);
+   fprintf(stdout, "\nParameters:\n");
+   fprintf(stdout, "\ndistance between receivers and Transmitter = %Le [cm]\n", e);
+   fprintf(stdout, "\nspeed of the signal = %Le [cm/(10^-6)s]\n", v);
 
-   Point p_test;
-   p_test.x = 1.0;
-   p_test.y = 1.0;
-   p_test.z = 0.0;
+   fprintf(stdout, "\nStarting simulation\n");
 
-   fprintf(stdout, "\nT.D. is at position:\n");
-   printPoint(&p_test);
-   fprintf(stdout, "\n");
+   long double dx = 10.0, dy = 10.0, dz = 10.0;
+   for (long double x = -100.0; x < 100.0; x += dx)
+   {
+       for (long double y = 0.0; y < 200.0; y += dy)
+       {
+           for (long double z = 0.0; z < dz; z += dz)
+           {
+               Point p_test;
 
-   simulate(&p_test, &T1, &T2, 0);
+               p_test.x = x;
+               p_test.y = y;
+               p_test.z = z;
 
-   printTimes(T1, T2);
+               simulate(&p_test, &T1, &T2, 0.0);
 
-   Point p_approx;
-   p_approx.x = 0;
-   p_approx.y = 0;
-   p_approx.z = 0;
+               Point p_approx;
+               p_approx.x = +0.0;
+               p_approx.y = -1.0;
+               p_approx.z =  0.0;
 
-   fprintf(stderr, "\ntrack return %d\n", track(T1, T2, &p_approx));
+               int error = track(T1, T2, &p_approx);
 
-   fprintf(stdout, "\nThe point computed by the function is:");
+               displayResults(error, &p_approx, &p_test, T1, T2);
+           }
+       }
+   }
 
-   printPoint(&p_approx);
+   fprintf(stdout, "\nEnd of simulation\n");
 
    return EXIT_SUCCESS;
 }
 
-void printPoint(Point* p)
+void displayResults(int error, Point *p, Point *TD, long double T1, long double T2)
+{
+   FILE* output = stderr;
+
+   if (error != 0)
+   {
+      fprintf(stderr, "\n\n !!! ERROR !!! \n");
+      output = stderr;
+   }
+   else
+   {
+      fprintf(stdout, "\n\n Results of the simulation: \n");
+      output = stdout;
+   }
+
+   fprintf(output, "\nTracking Device is at position:\n");
+   printPoint(output, TD);
+
+   fprintf(output, "\nMeasured ellapsed times:\n");
+   printTimes(output, T1, T2);
+
+   fprintf(output, "\nTrack function return code: %d \n", error);
+
+   fprintf(output, "\nThe point computed by the function is:\n");
+   printPoint(output, p);
+
+   fprintf(output, "\nThe error is %lf [cm]\n", computeError(p, TD));
+
+   fprintf(output, "\n\n");
+
+   return;
+}
+
+double computeError(Point *p, Point *TD)
+{
+   return sqrt(pow(p->x - TD->x, 2) + pow(p->y - TD->y, 2));
+}
+
+void printPoint (FILE* output, Point *p)
 {
    if (p == NULL)
       return;
 
-   fprintf(stdout, "\n");
-   fprintf(stdout, "P.x = %Le\n", p->x);
-   fprintf(stdout, "P.y = %Le\n", p->y);
-   fprintf(stdout, "P.z = %Le\n", p->z);
+   fprintf(output, "\n");
+   fprintf(output, "P.x = %lf [cm]\n", p->x);
+   fprintf(output, "P.y = %lf [cm]\n", p->y);
+   fprintf(output, "P.z = %lf [cm]\n", p->z);
+
 }
 
-void printTimes(long double T1, long double T2)
+void printTimes(FILE* output, long double T1, long double T2)
 {
    if ((T1 < 0) || (T2 < 0))
       return;
 
-   fprintf(stdout, "T1 = %Le s\n", T1);
-   fprintf(stdout, "T2 = %Le s\n", T2);
+   fprintf(output, "T1 = %Le (10^-6)s\n", T1);
+   fprintf(output, "T2 = %Le (10^-6)s\n", T2);
 }
 

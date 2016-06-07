@@ -9,15 +9,15 @@
  *        |               |    x          |
  *        |<------------->|<------------->|
  *        |       e       |       e       |
- *        C2              T               C1
+ *        C1              T               C2
  *
  */
 
 typedef struct Point Point;
 struct Point {
-  long double x;
-  long double y;
-  long double z;
+  double x;
+  double y;
+  double z;
 };
 
 /**
@@ -39,7 +39,7 @@ struct Point {
  * @return: 0 if no error occurs
  *          an error code in case of failure.
  */
-int track (long double T1, long double T2, Point* p);
+int track (const long double T1, const long double T2, Point* p);
 
 #endif
 

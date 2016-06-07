@@ -5,9 +5,7 @@
 
 int simulate (Point *p, long double *T1, long double *T2, long double eps);
 
-long double distance(Point *a, Point *b);
-
-void printPoint_s(Point *p);
+long double distance (Point *a, Point *b);
 
 #endif
 
