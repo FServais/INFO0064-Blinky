@@ -3,9 +3,9 @@
 
 #include "track.h"
 
-int simulate (Point *p, long double *T1, long double *T2, long double eps);
+int simulate (const Point *p, long double *T1, long double *T2, const long double eps);
 
-long double distance (Point *a, Point *b);
+long double distance (const Point *a, const Point *b);
 
 #endif
 

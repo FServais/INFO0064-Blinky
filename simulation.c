@@ -2,10 +2,19 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <float.h>
+
 #include "simulation.h"
 
-int simulate (Point *p, long double *T1, long double *T2, long double eps)
+int simulate (const Point *p, long double *T1, long double *T2, const long double eps)
 {
+
+  if (p->y <= 0)
+  {
+     *T1 = LDBL_MAX;
+     *T2 = LDBL_MAX;
+     return -1;
+  }
 
   const long double e = 7.0; /* distance between the captor and the origin in [cm] */
   const long double v = 0.034000; /* Velocity of the signal in [cm/(10^-6)s] */
@@ -48,7 +57,7 @@ int simulate (Point *p, long double *T1, long double *T2, long double eps)
   return 0;
 }
 
-long double distance(Point *a, Point *b)
+long double distance(const Point *a, const Point *b)
 {
    if (a == NULL || b == NULL)
       return -1;

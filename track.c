@@ -29,13 +29,8 @@ long double root2 (double x);
  *
  * See matlab file and report.
  *
- * TODO :
- * - check if it gives the right answer
- * - check units
- * - check division, float type, etc.
- * - make tests
  */
-int track (long double T1, long double T2, Point* p)
+int track (const long double T1, const long double T2, Point* p)
 {
   const double e = 7.0; /* distance between the captor and the origin in [cm] */
   const double v = 0.0340; /* Velocity of the signal in [cm/(10^-6)s] */
@@ -56,6 +51,15 @@ int track (long double T1, long double T2, Point* p)
   {
      p->x = 0.0;
      p->y = (pow2(d1) - pow2(e)) / (2 * d1);
+
+     if (p->y < 0)
+     {
+        p->x = 0.0;
+        p->y = 0.0;
+        p->z = 0.0;
+        return -2;
+     }
+
      return 0;
   }
 
@@ -73,7 +77,7 @@ int track (long double T1, long double T2, Point* p)
      p->x = 0.0;
      p->y = 0.0;
      p->z = 0.0;
-     return -2;
+     return -3;
   }
 
   p->x = (-b + root2(delta)) / (2.0 * a);
@@ -85,10 +89,18 @@ int track (long double T1, long double T2, Point* p)
      p->x = 0.0;
      p->y = 0.0;
      p->z = 0.0;
-     return -3;
+     return -4;
   }
 
   p->y = root2(tmp);
+
+  if (p->y < 0)
+  {
+     p->x = 0.0;
+     p->y = 0.0;
+     p->z = 0.0;
+     return -2;
+  }
 
   return 0;
 }

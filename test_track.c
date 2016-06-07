@@ -27,12 +27,16 @@ int main()
 
    fprintf(stdout, "\nStarting simulation\n");
 
-   long double dx = 10.0, dy = 10.0, dz = 10.0;
-   for (long double x = -100.0; x < 100.0; x += dx)
+   long double dx = 250.0, dy = 250.0, dz = 250.0;
+
+   long double xMin = -500.0, yMin = -500.0, zMin = -500.0;
+   long double xMax = +500.0, yMax = +500.0, zMax = +500.0;
+
+   for (long double z = zMin; z <= zMax; z += dz)
    {
-       for (long double y = 0.0; y < 200.0; y += dy)
+       for (long double y = yMin; y <= yMax; y += dy)
        {
-           for (long double z = 0.0; z < dz; z += dz)
+           for (long double x = xMin; x <= xMax; x += dx)
            {
                Point p_test;
 
@@ -103,9 +107,9 @@ void printPoint (FILE* output, Point *p)
       return;
 
    fprintf(output, "\n");
-   fprintf(output, "P.x = %lf [cm]\n", p->x);
-   fprintf(output, "P.y = %lf [cm]\n", p->y);
-   fprintf(output, "P.z = %lf [cm]\n", p->z);
+   fprintf(output, "P.x = %lf [cm]\n", (double) p->x);
+   fprintf(output, "P.y = %lf [cm]\n", (double) p->y);
+   fprintf(output, "P.z = %lf [cm]\n", (double) p->z);
 
 }
 
@@ -114,7 +118,7 @@ void printTimes(FILE* output, long double T1, long double T2)
    if ((T1 < 0) || (T2 < 0))
       return;
 
-   fprintf(output, "T1 = %Le (10^-6)s\n", T1);
-   fprintf(output, "T2 = %Le (10^-6)s\n", T2);
+   fprintf(output, "T1 = %lf (10^-6)s\n", (double) T1);
+   fprintf(output, "T2 = %lf (10^-6)s\n", (double) T2);
 }
 
